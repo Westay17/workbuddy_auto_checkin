@@ -262,9 +262,15 @@ def normalize_repo(value):
 
 def main():
     gh_repo = None
+    secret_name = "WB_ACCESS_TOKEN"
     args = sys.argv[1:]
     if "--gh-repo" in args:
         gh_repo = normalize_repo(args[args.index("--gh-repo") + 1])
+    if "--secret-name" in args:
+        # 多账号：第 2~N 个账号写入 WB_ACCESS_TOKEN_2..N，与 wb_auto.py 的收集逻辑对应
+        secret_name = args[args.index("--secret-name") + 1]
+        if not re.fullmatch(r"WB_ACCESS_TOKEN(_[2-9])?", secret_name):
+            raise SystemExit("secret 名应为 WB_ACCESS_TOKEN 或 WB_ACCESS_TOKEN_2..9，收到：%s" % secret_name)
 
     auth_file = find_auth_file()
     if not auth_file:
@@ -289,13 +295,13 @@ def main():
     if gh_repo and shutil.which("gh") is not None:
         # 明文 token 只作为 stdin 传给 gh，不出现在命令行与进程列表中
         proc = subprocess.run(
-            ["gh", "secret", "set", "WB_ACCESS_TOKEN", "--repo", gh_repo, "--body", "-"],
+            ["gh", "secret", "set", secret_name, "--repo", gh_repo, "--body", "-"],
             input=token.encode("utf-8"),
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         )
         if proc.returncode != 0:
             raise SystemExit("写入 GitHub Secret 失败：" + proc.stderr.decode("utf-8", "replace"))
-        print("已写入 GitHub Secret WB_ACCESS_TOKEN（仓库 %s）" % gh_repo)
+        print("已写入 GitHub Secret %s（仓库 %s）" % (secret_name, gh_repo))
         return
 
     if gh_repo:

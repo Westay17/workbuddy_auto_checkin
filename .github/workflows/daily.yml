@@ -49,6 +49,12 @@ jobs:
         id: run
         env:
           WB_ACCESS_TOKEN: ${{ secrets.WB_ACCESS_TOKEN }}
+          # 多账号：WB_ACCESS_TOKEN_2.._5 依次对应第 2~5 个账号；
+          # 未配置的 Secret 在 Actions 里展开为空串，脚本会自动跳过空位
+          WB_ACCESS_TOKEN_2: ${{ secrets.WB_ACCESS_TOKEN_2 }}
+          WB_ACCESS_TOKEN_3: ${{ secrets.WB_ACCESS_TOKEN_3 }}
+          WB_ACCESS_TOKEN_4: ${{ secrets.WB_ACCESS_TOKEN_4 }}
+          WB_ACCESS_TOKEN_5: ${{ secrets.WB_ACCESS_TOKEN_5 }}
           FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
           WB_ENDPOINT: https://copilot.tencent.com
           WB_RESULT_FILE: ${{ runner.temp }}/wb_result.json
